@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUIZ HENRIQUE — Logistics & Tech Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════
+   LOGISTICS OS — CORE VARIABLES
+   ═══════════════════════════════════════════ */
+:root {
+  --night:     #0d1117;
+  --base:      #111820;
+  --panel:     #161e28;
+  --panel2:    #1c2636;
+  --steel:     #1e2d3d;
+  --amber:     #f59e0b;
+  --amber-dim: #d97706;
+  --amber-lo:  rgba(245,158,11,.12);
+  --blue:      #3b82f6;
+  --blue-dim:  #2563eb;
+  --green:     #22c55e;
+  --red:       #ef4444;
+  --text:      #e2eaf4;
+  --muted:     #8a9bb5;
+  --border:    rgba(245,158,11,.12);
+  --border-b:  rgba(59,130,246,.12);
+  --glow-a:    0 0 16px rgba(245,158,11,.35);
+  --glow-b:    0 0 16px rgba(59,130,246,.3);
+  --bc:  'Barlow Condensed', sans-serif;
+  --bar: 'Barlow', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 15px; }
+
+body {
+  font-family: var(--bar);
+  background: var(--night);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Subtle grid overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(245,158,11,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,158,11,.018) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--night); }
+::-webkit-scrollbar-thumb { background: var(--amber); }
+
+/* ═══ CURSOR ═══ */
+.cursor-outer {
+  width: 26px; height: 26px;
+  border: 1.5px solid var(--amber);
+  border-radius: 3px;
+  position: fixed; top: 0; left: 0; z-index: 9999;
+  transform: translate(-50%,-50%) rotate(45deg);
+  pointer-events: none;
+  transition: width .2s, height .2s, border-color .2s;
+  box-shadow: var(--glow-a);
+}
+.cursor-inner {
+  width: 5px; height: 5px;
+  background: var(--amber);
+  border-radius: 1px;
+  position: fixed; top: 0; left: 0; z-index: 9999;
+  transform: translate(-50%,-50%) rotate(45deg);
+  pointer-events: none;
+}
+.cursor-outer.hov { width: 42px; height: 42px; border-color: var(--blue); box-shadow: var(--glow-b); }
+
+/* ═══ LAYOUT ═══ */
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+/* ═══ LABEL BADGE ═══ */
+.route-label {
+  font-family: var(--mono);
+  font-size: .58rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--amber);
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+  background: var(--amber-lo);
+  border: 1px solid rgba(245,158,11,.25);
+  padding: 4px 12px;
+  border-radius: 2px;
+}
+.route-label::before { content: '▶'; font-size: .5rem; }
+
+/* ═══ SECTION TITLE ═══ */
+.sec-title {
+  font-family: var(--bc);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 900;
+  letter-spacing: .03em;
+  line-height: 1;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.sec-title .hi { color: var(--amber); }
+.sec-title .hi-b { color: var(--blue); }
+
+.mono-text {
+  font-family: var(--mono);
+  font-size: .75rem;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+/* ═══ DIVIDER ═══ */
+.route-divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--amber), transparent);
+  margin-bottom: 16px;
+  width: 60px;
+}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes slideRight {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes conveyor {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes pulse-amber {
+  0%,100% { box-shadow: 0 0 0 rgba(245,158,11,0); }
+  50%      { box-shadow: 0 0 20px rgba(245,158,11,.2); }
+}
+@keyframes route-flow {
+  0%   { stroke-dashoffset: 200; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Reveal */
+.r { opacity: 0; transform: translateY(18px); transition: opacity .55s ease, transform .55s ease; }
+.r.on { opacity: 1; transform: none; }
+.r2 { transition-delay: .1s; }
+.r3 { transition-delay: .2s; }
+.r4 { transition-delay: .3s; }
+
+/* ═══════════════════════════════════════════
+   NAV
+   ═══════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  border-bottom: 1px solid var(--border);
+  background: rgba(13,17,23,.92);
+  backdrop-filter: blur(20px);
+}
+.nav-inner {
+  display: flex; align-items: stretch;
+  height: 54px;
+}
+.nav-logo-wrap {
+  display: flex; align-items: center;
+  padding: 0 24px;
+  border-right: 1px solid var(--border);
+  gap: 12px;
+  flex-shrink: 0;
+}
+.nav-logo-icon {
+  width: 28px; height: 28px;
+  background: var(--amber);
+  clip-path: polygon(0 25%, 50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.nav-logo-text {
+  font-family: var(--bc);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.nav-logo-text em { color: var(--amber); font-style: normal; }
+.nav-logo-sub { font-family: var(--mono); font-size: .48rem; color: var(--muted); letter-spacing: .1em; margin-top: 1px; }
+
+.nav-links {
+  display: flex; align-items: center;
+  list-style: none; flex: 1;
+}
+.nav-links li { height: 100%; }
+.nav-links a {
+  height: 100%;
+  display: flex; align-items: center;
+  padding: 0 20px;
+  font-family: var(--mono); font-size: .63rem;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted);
+  transition: color .2s, background .2s;
+  border-right: 1px solid rgba(245,158,11,.06);
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--amber);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .25s;
+}
+.nav-links a:hover { color: var(--amber); }
+.nav-links a:hover::after { transform: scaleX(1); }
+
+.nav-status {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 20px; margin-left: auto;
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+  animation: blink 2.5s infinite;
+}
+.status-text { font-family: var(--mono); font-size: .55rem; color: var(--red); letter-spacing: .12em; text-transform: uppercase; }
+
+.nav-cta {
+  display: flex; align-items: center;
+  padding: 0 22px; height: 100%;
+  border-left: 1px solid var(--border);
+  font-family: var(--mono); font-size: .63rem;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--night); background: var(--amber);
+  font-weight: 700;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.nav-cta:hover { background: var(--amber-dim); }
+
+.hbg { display: none; flex-direction: column; gap: 5px; align-items: center; justify-content: center; padding: 0 20px; cursor: pointer; }
+.hbg span { width: 20px; height: 1.5px; background: var(--amber); }
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 54px; left: 0; right: 0;
+  background: rgba(13,17,23,.98);
+  border-bottom: 1px solid var(--border);
+  z-index: 499;
+  flex-direction: column;
+  padding: 16px 28px 24px;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-family: var(--mono); font-size: .72rem;
+  letter-spacing: .15em; text-transform: uppercase;
+  color: var(--muted);
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(245,158,11,.07);
+  transition: color .2s;
+}
+.mobile-menu a:hover { color: var(--amber); }
+
+/* ═══════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════ */
+header {
+  min-height: 100vh;
+  padding-top: 54px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: var(--base);
+}
+
+/* Diagonal stripe accent */
+header::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(135deg, transparent 60%, rgba(245,158,11,.03) 60%, rgba(245,158,11,.03) 62%, transparent 62%),
+    linear-gradient(135deg, transparent 65%, rgba(59,130,246,.02) 65%, rgba(59,130,246,.02) 66.5%, transparent 66.5%);
+}
+
+.hero-main {
+  flex: 1; display: flex; align-items: center;
+  position: relative; z-index: 2;
+  padding: 48px 0;
+}
+.hero-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 56px;
+  align-items: center;
+}
+
+/* Status bar */
+.hero-status-bar {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 28px;
+  animation: fadeUp .5s ease .1s both;
+}
+.hsb-tag {
+  font-family: var(--mono); font-size: .6rem;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 5px 12px;
+  border: 1px solid rgba(245,158,11,.3);
+  color: var(--amber);
+  background: var(--amber-lo);
+  border-radius: 2px;
+}
+.hsb-sep { width: 40px; height: 1px; background: var(--muted); }
+.hsb-loc { font-family: var(--mono); font-size: .6rem; color: var(--muted); letter-spacing: .08em; }
+
+.hero-name {
+  font-family: var(--bc);
+  font-weight: 900;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  line-height: .92;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  animation: fadeUp .6s ease .2s both;
+  color: #fff;
+}
+.hero-name .line2 {
+  color: var(--amber);
+  display: block;
+}
+
+.hero-role {
+  font-family: var(--mono); font-size: .78rem;
+  color: var(--blue);
+  letter-spacing: .15em; text-transform: uppercase;
+  margin-bottom: 20px;
+  animation: fadeUp .6s ease .35s both;
+  display: flex; align-items: center; gap: 8px;
+}
+.hero-role::before {
+  content: '';
+  width: 24px; height: 1px;
+  background: var(--blue);
+  flex-shrink: 0;
+}
+
+.hero-desc {
+  font-family: var(--bar); font-size: .92rem;
+  color: var(--text); line-height: 1.75;
+  max-width: 500px;
+  margin-bottom: 36px;
+  animation: fadeUp .6s ease .5s both;
+  font-weight: 300;
+}
+.hero-desc strong { color: #fff; font-weight: 600; }
+
+.hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; animation: fadeUp .6s ease .65s both; }
+.cta-primary {
+  background: var(--amber);
+  color: var(--night);
+  padding: 11px 26px;
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
+  font-weight: 700;
+  transition: background .2s, transform .2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.cta-primary:hover { background: var(--amber-dim); transform: translateX(3px); }
+.cta-primary::after { content: '→'; }
+.cta-secondary {
+  border: 1px solid var(--muted);
+  color: var(--muted);
+  padding: 11px 26px;
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
+  transition: border-color .2s, color .2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.cta-secondary:hover { border-color: var(--amber); color: var(--amber); }
+.cta-secondary::before { content: '↓'; }
+
+/* Operative Card — new design */
+.op-card {
+  background: var(--panel);
+  border: 1px solid rgba(245,158,11,.2);
+  position: relative;
+  overflow: hidden;
+  animation: pulse-amber 5s infinite;
+}
+.op-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--amber), var(--blue));
+}
+.op-card-header {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.op-card-title {
+  font-family: var(--mono); font-size: .6rem;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--amber);
+}
+.op-card-id {
+  font-family: var(--mono); font-size: .54rem;
+  color: var(--muted);
+}
+.op-body { padding: 18px; }
+.op-top { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+.op-avatar {
+  width: 60px; height: 60px; flex-shrink: 0;
+  border: 2px solid rgba(245,158,11,.3);
+  overflow: hidden;
+  background: var(--steel);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: .5rem; color: var(--muted);
+}
+.op-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.op-name { font-family: var(--bc); font-weight: 800; font-size: .95rem; letter-spacing: .06em; text-transform: uppercase; color: #fff; margin-bottom: 2px; }
+.op-class { font-family: var(--mono); font-size: .62rem; color: var(--amber); letter-spacing: .06em; margin-bottom: 3px; }
+.op-loc { font-family: var(--mono); font-size: .58rem; color: var(--muted); }
+
+.op-status-row { margin-bottom: 12px; }
+.op-status-badge {
+  font-family: var(--mono); font-size: .6rem;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--red);
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid rgba(239,68,68,.25);
+  background: rgba(239,68,68,.06);
+}
+
+.op-vitals { margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px; }
+.vital-row { display: flex; align-items: center; gap: 10px; }
+.vital-label { font-family: var(--mono); font-size: .55rem; color: var(--muted); width: 32px; flex-shrink: 0; letter-spacing: .06em; }
+.vital-track {
+  flex: 1; height: 4px;
+  background: rgba(255,255,255,.06);
+  position: relative; overflow: hidden;
+  border-radius: 2px;
+}
+.vital-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 1.2s cubic-bezier(.4,0,.2,1);
+}
+.vf-exp  { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.vf-proj { background: linear-gradient(90deg, var(--blue), #60a5fa); }
+.vf-auto { background: linear-gradient(90deg, var(--green), #4ade80); }
+.vf-bi   { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.vital-val { font-family: var(--mono); font-size: .58rem; color: var(--text); width: 48px; text-align: right; flex-shrink: 0; }
+
+.op-stats {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 1px; background: rgba(255,255,255,.04);
+  border: 1px solid var(--border); margin-bottom: 14px;
+}
+.op-stat { padding: 10px 6px; text-align: center; background: var(--panel); }
+.op-stat-n { font-family: var(--bc); font-weight: 800; font-size: 1rem; color: var(--amber); display: block; }
+.op-stat-l { font-family: var(--mono); font-size: .48rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.op-skills-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.op-skill {
+  font-family: var(--mono); font-size: .56rem;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid rgba(59,130,246,.25);
+  color: var(--blue);
+  background: rgba(59,130,246,.06);
+  border-radius: 2px;
+}
+
+/* HUD Bar */
+.hero-hud-bar {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  position: relative; z-index: 2;
+}
+.hud-bar-item {
+  padding: 20px 28px;
+  border-right: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 12px;
+  position: relative; overflow: hidden;
+}
+.hud-bar-item::before {
+  content: attr(data-index);
+  position: absolute; top: 8px; right: 14px;
+  font-family: var(--mono); font-size: .52rem;
+  color: rgba(245,158,11,.2); letter-spacing: .06em;
+}
+.hud-bar-item:last-child { border-right: none; }
+.hud-num {
+  font-family: var(--bc); font-weight: 900;
+  font-size: 1.7rem; color: var(--amber);
+  line-height: 1;
+}
+.hud-unit { font-size: 1.1rem; }
+.hud-lbl {
+  font-family: var(--mono); font-size: .54rem;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: .1em; margin-top: 4px; line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════
+   CARROSSEL DE TECH
+   ═══════════════════════════════════════════ */
+.carousel-section {
+  padding: 52px 0 44px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.carousel-label {
+  text-align: center; margin-bottom: 28px;
+}
+.carousel-label h2 {
+  font-family: var(--bc); font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted);
+}
+.carousel-label h2 span { color: var(--amber); }
+
+.carousel-track-wrap {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%);
+}
+.carousel-track {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+  animation: conveyor 30s linear infinite;
+  padding: 6px 0;
+}
+.carousel-track:hover { animation-play-state: paused; }
+
+.tech-brick {
+  flex-shrink: 0;
+  padding: 12px 16px 10px;
+  min-width: 100px;
+  text-align: center;
+  border-radius: 3px;
+  cursor: default;
+  transition: transform .2s ease;
+  border: 1px solid rgba(255,255,255,.06);
+  background: var(--steel);
+}
+.tech-brick:hover { transform: translateY(-4px); }
+.tech-brick.tb-a { border-color: rgba(245,158,11,.25); }
+.tech-brick.tb-b { border-color: rgba(59,130,246,.2); }
+.tech-brick.tb-g { border-color: rgba(34,197,94,.2); }
+.tech-icon { font-size: 1.3rem; display: block; margin-bottom: 5px; line-height: 1; }
+.tech-name { font-family: var(--bc); font-size: .82rem; font-weight: 700; letter-spacing: .04em; display: block; color: var(--text); }
+.tech-cat  { font-family: var(--mono); font-size: .5rem; letter-spacing: .1em; text-transform: uppercase; opacity: .5; margin-top: 3px; display: block; }
+
+/* ═══════════════════════════════════════════
+   ABOUT / DOSSIER
+   ═══════════════════════════════════════════ */
+.about-section {
+  padding: 100px 0;
+  background: var(--base);
+  position: relative; overflow: hidden;
+}
+.about-section::after {
+  content: 'LOGISTICS';
+  position: absolute; top: 50%; right: -30px;
+  transform: translateY(-50%) rotate(90deg);
+  font-family: var(--bc); font-size: 6rem; font-weight: 900;
+  color: rgba(245,158,11,.025); letter-spacing: .15em;
+  pointer-events: none; white-space: nowrap;
+}
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+
+/* Info card */
+.info-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--amber);
+  padding: 24px 22px;
+  position: relative; overflow: hidden;
+}
+.info-card-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 18px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.ic-dot { width: 8px; height: 8px; border-radius: 50%; }
+.ic-dot.r { background: #ef4444; }
+.ic-dot.y { background: #f59e0b; }
+.ic-dot.g { background: #22c55e; }
+.ic-title { font-family: var(--mono); font-size: .58rem; color: var(--muted); letter-spacing: .1em; margin-left: 4px; }
+.ic-body { font-family: var(--mono); font-size: .73rem; color: var(--text); line-height: 1.9; }
+.ic-body .hl   { color: var(--amber); }
+.ic-body .hl-b { color: var(--blue); }
+.ic-body .hl-g { color: var(--green); }
+.ic-body .hl-m { color: #a78bfa; }
+.ic-prompt { color: var(--green); margin-bottom: 10px; font-size: .68rem; }
+.ic-prompt::before { content: '$ '; opacity: .6; }
+
+/* Modules */
+.modules { display: flex; flex-direction: column; gap: 10px; }
+.module {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  display: flex; gap: 14px; align-items: flex-start;
+  position: relative; overflow: hidden;
+  transition: border-color .25s, transform .25s;
+}
+.module:hover { border-color: rgba(245,158,11,.35); transform: translateX(4px); }
+.module-accent {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--amber);
+  transform: scaleY(0); transform-origin: bottom;
+  transition: transform .3s;
+}
+.module:hover .module-accent { transform: scaleY(1); }
+.module-icon {
+  width: 34px; height: 34px; flex-shrink: 0;
+  background: var(--amber-lo);
+  border: 1px solid rgba(245,158,11,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem;
+  border-radius: 4px;
+}
+.module-name { font-family: var(--bc); font-weight: 700; font-size: .82rem; letter-spacing: .04em; text-transform: uppercase; color: var(--amber); margin-bottom: 3px; }
+.module-desc { font-family: var(--mono); font-size: .62rem; color: var(--muted); line-height: 1.55; }
+
+/* ═══════════════════════════════════════════
+   CARREIRA / TIMELINE
+   ═══════════════════════════════════════════ */
+.career-section { padding: 100px 0; background: var(--panel); }
+.career-grid { display: grid; grid-template-columns: 260px 1fr; gap: 60px; align-items: start; }
+.career-sticky { position: sticky; top: 80px; }
+
+.mission-log { display: flex; flex-direction: column; gap: 0; }
+.mission-item {
+  position: relative; padding: 0 0 40px 52px;
+  border-left: 2px solid rgba(245,158,11,.12);
+}
+.mission-item:last-child { padding-bottom: 0; border-left-color: transparent; }
+.mission-node {
+  position: absolute; left: -9px; top: 0;
+  width: 16px; height: 16px;
+  background: var(--panel);
+  border: 2px solid var(--amber);
+  border-radius: 3px;
+  transform: rotate(45deg);
+  transition: background .3s;
+}
+.mission-item:hover .mission-node { background: var(--amber); }
+.mission-head { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 12px; }
+.mission-logo {
+  width: 48px; height: 48px; flex-shrink: 0;
+  background: var(--steel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  font-family: var(--mono); font-size: .48rem; color: var(--muted);
+  text-align: center; padding: 4px;
+}
+.mission-logo img { width: 100%; height: 100%; object-fit: contain; }
+.mission-date { font-family: var(--mono); font-size: .6rem; color: var(--amber); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 3px; }
+.mission-role { font-family: var(--bc); font-weight: 800; font-size: 1rem; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 2px; color: #fff; }
+.mission-co { font-family: var(--mono); font-size: .6rem; color: var(--muted); }
+.mission-body { font-family: var(--bar); font-size: .82rem; color: var(--text); line-height: 1.75; margin-bottom: 12px; font-weight: 300; }
+.mission-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mission-chip {
+  font-family: var(--mono); font-size: .56rem; letter-spacing: .06em; text-transform: uppercase;
+  padding: 3px 9px;
+  border: 1px solid rgba(245,158,11,.22); color: var(--amber);
+  background: var(--amber-lo);
+  border-radius: 2px;
+}
+.mission-chip.blue { border-color: rgba(59,130,246,.25); color: var(--blue); background: rgba(59,130,246,.06); }
+
+/* ═══════════════════════════════════════════
+   PROJETOS
+   ═══════════════════════════════════════════ */
+.auto-section { padding: 100px 0; background: var(--base); }
+.section-header { display: grid; grid-template-columns: 1fr auto; align-items: end; margin-bottom: 44px; }
+.section-counter {
+  font-family: var(--bc); font-weight: 900;
+  font-size: 5rem; color: rgba(245,158,11,.05);
+  line-height: 1; letter-spacing: -.04em;
+}
+
+.proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: rgba(255,255,255,.04); border: 1px solid var(--border); }
+.proj-card {
+  background: var(--panel);
+  padding: 26px;
+  position: relative; overflow: hidden;
+  transition: background .25s;
+}
+.proj-card:hover { background: var(--panel2); }
+.proj-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--amber), transparent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .35s;
+}
+.proj-card:hover::before { transform: scaleX(1); }
+.proj-num {
+  font-family: var(--mono); font-size: .56rem;
+  color: var(--muted); letter-spacing: .12em;
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.proj-num::before { content: ''; width: 18px; height: 1px; background: var(--amber); }
+.proj-type { font-family: var(--mono); font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
+.proj-title {
+  font-family: var(--bc); font-weight: 800; font-size: 1rem;
+  letter-spacing: .04em; text-transform: uppercase;
+  margin-bottom: 10px; line-height: 1.2; color: #fff;
+}
+.proj-desc { font-family: var(--bar); font-size: .8rem; color: var(--text); line-height: 1.7; margin-bottom: 16px; font-weight: 300; }
+.proj-impact {
+  background: var(--amber-lo);
+  border: 1px solid rgba(245,158,11,.2);
+  border-left: 2px solid var(--amber);
+  padding: 10px 14px; margin-bottom: 14px;
+}
+.proj-impact-lbl { font-family: var(--mono); font-size: .52rem; letter-spacing: .15em; text-transform: uppercase; color: var(--amber); margin-bottom: 3px; }
+.proj-impact-val { font-family: var(--bc); font-weight: 700; font-size: .88rem; color: var(--text); }
+.proj-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.proj-tag {
+  font-family: var(--mono); font-size: .55rem; letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 8px;
+  border: 1px solid rgba(255,255,255,.1); color: var(--muted);
+  border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════
+   GALERIA
+   ═══════════════════════════════════════════ */
+.gallery-section { padding: 100px 0; background: var(--panel); }
+.gallery-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: end; margin-bottom: 44px; }
+.media-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.media-card {
+  background: var(--base);
+  border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+  transition: border-color .25s, transform .25s;
+}
+.media-card:hover { border-color: rgba(245,158,11,.35); transform: translateY(-3px); }
+.media-badge {
+  position: absolute; top: 10px; left: 10px; z-index: 2;
+  font-family: var(--mono); font-size: .52rem;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--amber);
+  background: rgba(13,17,23,.9);
+  border: 1px solid rgba(245,158,11,.25);
+  padding: 3px 8px; border-radius: 2px;
+}
+.media-frame {
+  width: 100%; aspect-ratio: 16/9;
+  background: var(--steel);
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.media-placeholder {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  background: repeating-linear-gradient(-45deg, var(--steel) 0, var(--steel) 10px, var(--panel) 10px, var(--panel) 20px);
+}
+.media-ph-icon { font-size: 1.8rem; opacity: .3; }
+.media-ph-text { font-family: var(--mono); font-size: .6rem; color: var(--muted); letter-spacing: .1em; text-align: center; line-height: 1.6; }
+.media-body { padding: 16px 18px 18px; }
+.media-cat { font-family: var(--mono); font-size: .56rem; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); margin-bottom: 6px; }
+.media-title { font-family: var(--bc); font-weight: 800; font-size: .88rem; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
+.media-desc { font-family: var(--bar); font-size: .78rem; color: var(--text); line-height: 1.65; margin-bottom: 12px; font-weight: 300; }
+.media-kpis { display: flex; gap: 18px; border-top: 1px solid var(--border); padding-top: 12px; }
+.kpi-v { font-family: var(--bc); font-weight: 800; font-size: 1.1rem; color: var(--amber); display: block; }
+.kpi-l { font-family: var(--mono); font-size: .52rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+/* ═══════════════════════════════════════════
+   MÉTRICAS
+   ═══════════════════════════════════════════ */
+.metrics-section { padding: 100px 0; background: var(--base); }
+.metrics-hdr { text-align: center; margin-bottom: 52px; }
+.big-metrics {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 2px; background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+}
+.bm-item {
+  background: var(--panel);
+  padding: 36px 24px; text-align: center;
+  position: relative; overflow: hidden;
+  transition: background .25s;
+}
+.bm-item:hover { background: var(--panel2); }
+.bm-item::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--amber);
+  transform: scaleX(0); transform-origin: center;
+  transition: transform .35s;
+}
+.bm-item:hover::after { transform: scaleX(1); }
+.bm-n {
+  font-family: var(--bc); font-weight: 900;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  color: var(--amber);
+  line-height: 1; display: block; margin-bottom: 10px;
+}
+.bm-unit { font-size: 1.6rem; }
+.bm-l { font-family: var(--mono); font-size: .58rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; line-height: 1.6; }
+
+/* ═══════════════════════════════════════════
+   SKILLS
+   ═══════════════════════════════════════════ */
+.skills-section { padding: 100px 0; background: var(--panel); }
+.skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+.skill-panel {
+  background: var(--base);
+  border: 1px solid var(--border);
+  padding: 24px;
+  position: relative;
+  border-top: 2px solid var(--amber);
+}
+.skill-panel-title {
+  font-family: var(--bc); font-weight: 800; font-size: .85rem;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 20px;
+  padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.xp-item { margin-bottom: 14px; }
+.xp-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+.xp-name { font-family: var(--mono); font-size: .68rem; color: var(--text); letter-spacing: .04em; }
+.xp-val { font-family: var(--bc); font-weight: 800; font-size: .75rem; color: var(--amber); }
+.xp-track { height: 5px; background: rgba(255,255,255,.05); position: relative; border-radius: 2px; overflow: hidden; }
+.xp-fill { height: 100%; width: 0; transition: width 1.4s cubic-bezier(.4,0,.2,1); border-radius: 2px; position: relative; }
+.xp-fill::after { content:''; position:absolute; right:0; top:0; bottom:0; width:3px; background:inherit; filter:brightness(1.8); }
+.xf-c { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.xf-g { background: linear-gradient(90deg, var(--green), #4ade80); }
+.xf-m { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.xf-y { background: linear-gradient(90deg, var(--blue), #60a5fa); }
+
+/* ═══════════════════════════════════════════
+   CONTATO
+   ═══════════════════════════════════════════ */
+.contact-section { padding: 100px 0; background: var(--base); position: relative; overflow: hidden; }
+.contact-section::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse 60% 60% at 10% 50%, rgba(245,158,11,.03) 0%, transparent 55%);
+}
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; position: relative; z-index: 1; }
+.contact-head { font-family: var(--bc); font-weight: 900; font-size: clamp(1.8rem, 3.5vw, 2.8rem); letter-spacing: .04em; text-transform: uppercase; line-height: 1; margin-bottom: 16px; color: #fff; }
+.contact-head em { color: var(--amber); font-style: normal; display: block; }
+.comm-channels { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.comm-link {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 16px;
+  background: var(--panel); border: 1px solid var(--border);
+  transition: border-color .25s, transform .25s;
+  border-left: 3px solid transparent;
+}
+.comm-link:hover { border-left-color: var(--amber); border-color: rgba(245,158,11,.25); transform: translateX(6px); }
+.comm-ico {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: var(--amber-lo);
+  border: 1px solid rgba(245,158,11,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: .65rem; color: var(--amber);
+  border-radius: 4px;
+}
+.comm-strong { font-family: var(--bc); font-weight: 700; font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; display: block; color: #fff; }
+.comm-sub { font-family: var(--mono); font-size: .62rem; color: var(--muted); }
+
+.form-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--amber);
+  padding: 28px;
+  position: relative;
+}
+.form-panel-title { font-family: var(--bc); font-weight: 800; font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; color: var(--amber); margin-bottom: 22px; }
+.form { display: flex; flex-direction: column; gap: 12px; }
+.fg { display: flex; flex-direction: column; gap: 5px; }
+.fl { font-family: var(--mono); font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.fi, .ft {
+  background: var(--base); border: 1px solid var(--border);
+  padding: 10px 14px; color: var(--text);
+  font-family: var(--mono); font-size: .78rem; outline: none;
+  transition: border-color .2s;
+  width: 100%;
+}
+.fi:focus, .ft:focus { border-color: rgba(245,158,11,.4); }
+.fi::placeholder, .ft::placeholder { color: var(--muted); opacity: .5; }
+.ft { min-height: 100px; resize: vertical; }
+.fsend {
+  background: var(--amber); border: none; color: var(--night);
+  padding: 11px 24px; font-family: var(--mono); font-size: .68rem;
+  letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+  font-weight: 700;
+  transition: background .2s;
+  align-self: flex-start;
+}
+.fsend:hover { background: var(--amber-dim); }
+
+/* ═══════════════════════════════════════════
+   CENA DO ARMAZÉM — CARROSSEL
+   ═══════════════════════════════════════════ */
+.warehouse-scene {
+  position: relative;
+  height: 90px;
+  margin: 0 0 18px 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--night) 0%, var(--base) 100%);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid rgba(245,158,11,.08);
+}
+
+/* Prateleiras de fundo */
+.shelf {
+  position: absolute;
+  top: 10px;
+  height: 48px;
+  background: var(--steel);
+  border: 1px solid rgba(245,158,11,.15);
+  border-radius: 2px;
+  opacity: .55;
+}
+.shelf::before, .shelf::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 6px; right: 6px;
+  height: 6px;
+  background: var(--amber);
+  opacity: .18;
+  border-radius: 1px;
+}
+.shelf::after {
+  top: 0; bottom: auto;
+}
+.shelf-1 { left: 8%; width: 120px; }
+.shelf-2 { right: 12%; width: 100px; }
+
+/* Empilhadeira */
+.forklift-anim {
+  position: absolute;
+  bottom: 18px;
+  left: -130px;
+  animation: forklift-drive 12s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(245,158,11,.3));
+  z-index: 2;
+}
+
+@keyframes forklift-drive {
+  0%   { left: -130px; }
+  100% { left: calc(100% + 20px); }
+}
+
+/* Chão com faixas */
+.warehouse-floor {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 18px;
+  background: var(--panel);
+  border-top: 2px solid rgba(245,158,11,.2);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow: hidden;
+}
+.floor-stripe {
+  flex: 1;
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(245,158,11,.08) 0px,
+    rgba(245,158,11,.08) 24px,
+    transparent 24px,
+    transparent 48px
+  );
+}
+
+/* ═══ FOOTER ═══ */
+footer {
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+  background: var(--night);
+}
+.footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.footer-copy { font-family: var(--mono); font-size: .6rem; color: var(--muted); letter-spacing: .1em; }
+.footer-copy em { color: var(--amber); font-style: normal; }
+.footer-links { display: flex; gap: 22px; }
+.footer-links a { font-family: var(--mono); font-size: .6rem; color: var(--muted); letter-spacing: .08em; transition: color .2s; }
+.footer-links a:hover { color: var(--amber); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .hero-layout { grid-template-columns: 1fr 340px; gap: 32px; }
+  .career-grid { grid-template-columns: 200px 1fr; gap: 36px; }
+}
+@media (max-width: 900px) {
+  .wrap { padding: 0 20px; }
+  .hero-layout { grid-template-columns: 1fr; }
+  .op-card { max-width: 460px; }
+  .about-grid { grid-template-columns: 1fr; gap: 32px; }
+  .career-grid { grid-template-columns: 1fr; gap: 28px; }
+  .career-sticky { position: static; }
+  .gallery-intro { grid-template-columns: 1fr; gap: 20px; }
+  .contact-grid { grid-template-columns: 1fr; gap: 36px; }
+  .skills-grid { grid-template-columns: 1fr; gap: 20px; }
+  .hero-hud-bar { grid-template-columns: repeat(2,1fr); }
+  .big-metrics { grid-template-columns: repeat(2,1fr); }
+  .section-header { grid-template-columns: 1fr; }
+  .section-counter { display: none; }
+  .nav-links, .nav-status { display: none; }
+  .hbg { display: flex; }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 0 16px; }
+  .proj-grid { grid-template-columns: 1fr; }
+  .media-grid { grid-template-columns: 1fr; }
+  .big-metrics { grid-template-columns: 1fr 1fr; }
+  body { cursor: auto; }
+  .cursor-outer, .cursor-inner { display: none; }
+  nav .nav-cta { display: none; }
+  .hero-name { font-size: clamp(2.5rem, 12vw, 4rem); }
+  .about-section, .career-section, .auto-section, .gallery-section, .metrics-section, .skills-section, .contact-section { padding: 60px 0; }
+  .op-stats { grid-template-columns: 1fr 1fr; }
+  .nav-logo-wrap { padding: 0 16px; }
+}
+@media (max-width: 420px) {
+  .big-metrics { grid-template-columns: 1fr; }
+  .hero-ctas { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor-outer" id="c-out"></div>
+<div class="cursor-inner" id="c-in"></div>
+
+<!-- ═══ NAV ═══ -->
+<nav id="nav">
+  <div class="nav-inner wrap">
+    <div class="nav-logo-wrap">
+      <!-- Empilhadeira SVG -->
+      <svg width="36" height="30" viewBox="0 0 36 30" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+        <!-- Mast vertical -->
+        <rect x="24" y="4" width="3" height="18" fill="#f59e0b"/>
+        <!-- Fork arms -->
+        <rect x="24" y="20" width="10" height="2.2" rx="1" fill="#f59e0b"/>
+        <rect x="24" y="23.5" width="10" height="2.2" rx="1" fill="#f59e0b"/>
+        <!-- Body -->
+        <rect x="4" y="12" width="22" height="12" rx="2" fill="#1e2d3d" stroke="#f59e0b" stroke-width="1.2"/>
+        <!-- Cab window -->
+        <rect x="6" y="14" width="7" height="6" rx="1" fill="#f59e0b" opacity=".25"/>
+        <rect x="6" y="14" width="7" height="6" rx="1" stroke="#f59e0b" stroke-width=".8"/>
+        <!-- Counterweight bump -->
+        <rect x="2" y="15" width="4" height="7" rx="1" fill="#1e2d3d" stroke="#f59e0b" stroke-width="1"/>
+        <!-- Wheels -->
+        <circle cx="9" cy="25.5" r="3.2" fill="#0d1117" stroke="#f59e0b" stroke-width="1.4"/>
+        <circle cx="9" cy="25.5" r="1.2" fill="#f59e0b" opacity=".5"/>
+        <circle cx="20" cy="25.5" r="3.2" fill="#0d1117" stroke="#f59e0b" stroke-width="1.4"/>
+        <circle cx="20" cy="25.5" r="1.2" fill="#f59e0b" opacity=".5"/>
+        <!-- Pallet on forks -->
+        <rect x="26" y="17" width="8" height="4" rx=".5" fill="#8a6020" opacity=".8"/>
+        <rect x="26.5" y="15.5" width="7" height="2" rx=".5" fill="#a07030" opacity=".9"/>
+      </svg>
+      <div>
+        <div class="nav-logo-text">LUIZ<em>_H</em></div>
+        <div class="nav-logo-sub">LOGISTICS & TECH · v4.0</div>
+      </div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#dossier">Perfil</a></li>
+      <li><a href="#mission-log">Carreira</a></li>
+      <li><a href="#ops">Projetos</a></li>
+      <li><a href="#intel">Galeria</a></li>
+      <li><a href="#skill-tree">Skills</a></li>
+    </ul>
+    <div class="nav-status">
+      <div class="status-dot"></div>
+      <span class="status-text">INDISPONÍVEL</span>
+    </div>
+    <a href="#comm" class="nav-cta">Contato</a>
+    <div class="hbg" id="hbg"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#dossier">01 — Perfil</a>
+  <a href="#mission-log">02 — Carreira</a>
+  <a href="#ops">03 — Projetos</a>
+  <a href="#intel">04 — Galeria</a>
+  <a href="#skill-tree">05 — Skills</a>
+  <a href="#comm">Contato</a>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<header id="inicio">
+  <div class="hero-main">
+    <div class="wrap">
+      <div class="hero-layout">
+        <div>
+          <div class="hero-status-bar">
+            <span class="hsb-tag">Logistics Analyst Jr.</span>
+            <div class="hsb-sep"></div>
+            <span class="hsb-loc">📍 Varginha, MG · BR</span>
+          </div>
+          <div class="hero-name r">
+            LUIZ
+            <span class="line2">HENRIQUE</span>
+          </div>
+          <p class="hero-role r r2">Supply Chain · Automação · BI · AI</p>
+          <p class="hero-desc r r3">
+            Mais de <strong>4 anos em operações logísticas</strong> — WMS, TMS, SAP, Supply Chain. Transformo processos manuais em automações eficientes com Python, VBA e Power BI. Operações mais inteligentes, resultados mensuráveis.
+          </p>
+          <div class="hero-ctas r r4">
+            <a href="#ops" class="cta-primary">Ver Projetos</a>
+            <a href="Curriculo.pdf" class="cta-secondary" download>Download CV</a>
+          </div>
+        </div>
+
+        <!-- ID Card -->
+        <div class="op-card r r3">
+          <div class="op-card-header">
+            <span class="op-card-title">Perfil Operacional</span>
+            <span class="op-card-id">ID: OP-0042 · CLASS-A</span>
+          </div>
+          <div class="op-body">
+            <div class="op-top">
+              <div class="op-avatar">
+                <img src="foto-perfil.jpg" alt="Avatar">
+              </div>
+              <div class="op-top-info">
+                <p class="op-name">Luiz Henrique</p>
+                <p class="op-class">Analista Jr. LLP — DHL</p>
+                <p class="op-loc">📍 Varginha, MG · BR</p>
+              </div>
+            </div>
+            <div class="op-status-row">
+              <span class="op-status-badge">● INDISPONÍVEL</span>
+            </div>
+            <div class="op-vitals">
+              <div class="vital-row">
+                <span class="vital-label">EXP</span>
+                <div class="vital-track"><div class="vital-fill vf-exp" style="width:80%"></div></div>
+                <span class="vital-val">4 ANOS</span>
+              </div>
+              <div class="vital-row">
+                <span class="vital-label">PROJ</span>
+                <div class="vital-track"><div class="vital-fill vf-proj" style="width:65%"></div></div>
+                <span class="vital-val">17+</span>
+              </div>
+              <div class="vital-row">
+                <span class="vital-label">AUTO</span>
+                <div class="vital-track"><div class="vital-fill vf-auto" style="width:68%"></div></div>
+                <span class="vital-val">68%</span>
+              </div>
+              <div class="vital-row">
+                <span class="vital-label">BI</span>
+                <div class="vital-track"><div class="vital-fill vf-bi" style="width:90%"></div></div>
+                <span class="vital-val">90%</span>
+              </div>
+            </div>
+            <div class="op-stats">
+              <div class="op-stat"><span class="op-stat-n">4+</span><span class="op-stat-l">Anos XP</span></div>
+              <div class="op-stat"><span class="op-stat-n">17+</span><span class="op-stat-l">Projetos</span></div>
+              <div class="op-stat"><span class="op-stat-n">R$50K</span><span class="op-stat-l">Economizado</span></div>
+              <div class="op-stat"><span class="op-stat-n">-40%</span><span class="op-stat-l">Tempo proc.</span></div>
+            </div>
+            <div class="op-skills-row">
+              <span class="op-skill">Python</span>
+              <span class="op-skill">VBA</span>
+              <span class="op-skill">Power BI</span>
+              <span class="op-skill">SAP</span>
+              <span class="op-skill">Excel</span>
+              <span class="op-skill">Power Automate</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- HUD Bar -->
+  <div class="hero-hud-bar wrap">
+    <div class="hud-bar-item" data-index="01">
+      <div>
+        <div class="hud-num"><span data-count="40">0</span><span class="hud-unit">%</span></div>
+        <div class="hud-lbl">REDUÇÃO<br>DE PROCESSO</div>
+      </div>
+    </div>
+    <div class="hud-bar-item" data-index="02">
+      <div>
+        <div class="hud-num">R$50K+</div>
+        <div class="hud-lbl">ECONOMIA<br>GERADA</div>
+      </div>
+    </div>
+    <div class="hud-bar-item" data-index="03">
+      <div>
+        <div class="hud-num"><span data-count="17">0</span>+</div>
+        <div class="hud-lbl">AUTOMAÇÕES<br>ENTREGUES</div>
+      </div>
+    </div>
+    <div class="hud-bar-item" data-index="04">
+      <div>
+        <div class="hud-num"><span data-count="98">0</span><span class="hud-unit">%</span></div>
+        <div class="hud-lbl">ACURÁCIA<br>DASHBOARDS</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ CARROSSEL ═══ -->
+<section class="carousel-section" id="techs">
+  <div class="carousel-label r">
+    <span class="route-label" style="justify-content:center;margin-bottom:8px;">Stack Tecnológico</span>
+    <h2>FERRAMENTAS QUE <span>UTILIZO</span></h2>
+  </div>
+
+  <!-- Cena do armazém com empilhadeira animada -->
+  <div class="warehouse-scene">
+    <!-- Prateleiras de fundo -->
+    <div class="shelf shelf-1"></div>
+    <div class="shelf shelf-2"></div>
+    <!-- Empilhadeira SVG animada -->
+    <div class="forklift-anim" id="forkAnim">
+      <svg width="110" height="72" viewBox="0 0 110 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Mast -->
+        <rect x="72" y="8" width="6" height="46" rx="1" fill="#f59e0b"/>
+        <!-- Fork arms -->
+        <rect x="72" y="51" width="30" height="4" rx="1.5" fill="#f59e0b"/>
+        <rect x="72" y="57" width="30" height="4" rx="1.5" fill="#f59e0b"/>
+        <!-- Pallet on forks -->
+        <rect x="78" y="44" width="22" height="8" rx="1" fill="#8a6020"/>
+        <rect x="79" y="41" width="20" height="4" rx="1" fill="#a07030"/>
+        <!-- Box on pallet -->
+        <rect x="80" y="31" width="18" height="12" rx="1" fill="#1e2d3d" stroke="#f59e0b" stroke-width="1"/>
+        <line x1="89" y1="31" x2="89" y2="43" stroke="#f59e0b" stroke-width=".8" opacity=".5"/>
+        <line x1="80" y1="37" x2="98" y2="37" stroke="#f59e0b" stroke-width=".8" opacity=".5"/>
+        <!-- Body -->
+        <rect x="10" y="28" width="64" height="28" rx="3" fill="#1e2d3d" stroke="#f59e0b" stroke-width="1.4"/>
+        <!-- Cab -->
+        <rect x="14" y="20" width="28" height="20" rx="2" fill="#161e28" stroke="#f59e0b" stroke-width="1.2"/>
+        <!-- Window -->
+        <rect x="17" y="23" width="22" height="13" rx="1" fill="#0d1117" stroke="#f59e0b" stroke-width=".8"/>
+        <line x1="28" y1="23" x2="28" y2="36" stroke="#f59e0b" stroke-width=".6" opacity=".4"/>
+        <!-- Operator silhouette -->
+        <ellipse cx="26" cy="27" rx="4" ry="4.5" fill="#f59e0b" opacity=".35"/>
+        <rect x="22" y="30" width="8" height="6" rx="1" fill="#f59e0b" opacity=".25"/>
+        <!-- Counterweight -->
+        <rect x="4" y="34" width="8" height="16" rx="2" fill="#1e2d3d" stroke="#f59e0b" stroke-width="1.2"/>
+        <!-- Exhaust pipe -->
+        <rect x="40" y="16" width="4" height="10" rx="1" fill="#f59e0b" opacity=".6"/>
+        <!-- Wheels -->
+        <circle cx="22" cy="58" r="9" fill="#0d1117" stroke="#f59e0b" stroke-width="2"/>
+        <circle cx="22" cy="58" r="4" fill="#1e2d3d" stroke="#f59e0b" stroke-width="1"/>
+        <circle cx="22" cy="58" r="1.5" fill="#f59e0b" opacity=".8"/>
+        <circle cx="58" cy="58" r="9" fill="#0d1117" stroke="#f59e0b" stroke-width="2"/>
+        <circle cx="58" cy="58" r="4" fill="#1e2d3d" stroke="#f59e0b" stroke-width="1"/>
+        <circle cx="58" cy="58" r="1.5" fill="#f59e0b" opacity=".8"/>
+        <!-- Warning stripe on body -->
+        <rect x="64" y="36" width="8" height="14" rx="1" fill="#f59e0b" opacity=".15"/>
+        <line x1="64" y1="36" x2="72" y2="50" stroke="#f59e0b" stroke-width="1.5" opacity=".3"/>
+        <line x1="67" y1="36" x2="72" y2="44" stroke="#f59e0b" stroke-width="1.5" opacity=".3"/>
+      </svg>
+    </div>
+    <!-- Chão com faixas -->
+    <div class="warehouse-floor">
+      <div class="floor-stripe"></div>
+      <div class="floor-stripe"></div>
+      <div class="floor-stripe"></div>
+    </div>
+  </div>
+
+  <!-- Cards de skills deslizando -->
+  <div class="carousel-track-wrap">
+    <div class="carousel-track" id="carousel">
+      <div class="tech-brick tb-a"><span class="tech-icon">📦</span><span class="tech-name">WMS</span><span class="tech-cat">Armazém</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">🐍</span><span class="tech-name">Python</span><span class="tech-cat">Automação</span></div>
+      <div class="tech-brick tb-g"><span class="tech-icon">🚚</span><span class="tech-name">TMS</span><span class="tech-cat">Transporte</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">📊</span><span class="tech-name">VBA</span><span class="tech-cat">Excel</span></div>
+      <div class="tech-brick tb-a"><span class="tech-icon">🏭</span><span class="tech-name">S4HANA</span><span class="tech-cat">SAP</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">📈</span><span class="tech-name">Power BI</span><span class="tech-cat">BI</span></div>
+      <div class="tech-brick tb-g"><span class="tech-icon">🗺️</span><span class="tech-name">Roteirização</span><span class="tech-cat">Last Mile</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">🗄️</span><span class="tech-name">SAP MM/WM</span><span class="tech-cat">ERP</span></div>
+      <div class="tech-brick tb-a"><span class="tech-icon">📋</span><span class="tech-name">Inventário</span><span class="tech-cat">Controle</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">⚡</span><span class="tech-name">Power Automate</span><span class="tech-cat">RPA</span></div>
+      <div class="tech-brick tb-g"><span class="tech-icon">🔄</span><span class="tech-name">Log. Reversa</span><span class="tech-cat">Operações</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">🗃️</span><span class="tech-name">SQL</span><span class="tech-cat">Dados</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">🤖</span><span class="tech-name">Machine Learning</span><span class="tech-cat">IA</span></div>
+      <div class="tech-brick tb-g"><span class="tech-icon">♟️</span><span class="tech-name">Lean Six Sigma</span><span class="tech-cat">Melhoria</span></div>
+      <div class="tech-brick tb-a"><span class="tech-icon">🚛</span><span class="tech-name">Supply Chain</span><span class="tech-cat">Gestão</span></div>
+      <!-- Duplicata -->
+      <div class="tech-brick tb-a"><span class="tech-icon">📦</span><span class="tech-name">WMS</span><span class="tech-cat">Armazém</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">🐍</span><span class="tech-name">Python</span><span class="tech-cat">Automação</span></div>
+      <div class="tech-brick tb-g"><span class="tech-icon">🚚</span><span class="tech-name">TMS</span><span class="tech-cat">Transporte</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">📊</span><span class="tech-name">VBA</span><span class="tech-cat">Excel</span></div>
+      <div class="tech-brick tb-a"><span class="tech-icon">🏭</span><span class="tech-name">S4HANA</span><span class="tech-cat">SAP</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">📈</span><span class="tech-name">Power BI</span><span class="tech-cat">BI</span></div>
+      <div class="tech-brick tb-g"><span class="tech-icon">🗺️</span><span class="tech-name">Roteirização</span><span class="tech-cat">Last Mile</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">🗄️</span><span class="tech-name">SAP MM/WM</span><span class="tech-cat">ERP</span></div>
+      <div class="tech-brick tb-a"><span class="tech-icon">📋</span><span class="tech-name">Inventário</span><span class="tech-cat">Controle</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">⚡</span><span class="tech-name">Power Automate</span><span class="tech-cat">RPA</span></div>
+      <div class="tech-brick tb-g"><span class="tech-icon">🔄</span><span class="tech-name">Log. Reversa</span><span class="tech-cat">Operações</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">🗃️</span><span class="tech-name">SQL</span><span class="tech-cat">Dados</span></div>
+      <div class="tech-brick tb-b"><span class="tech-icon">🤖</span><span class="tech-name">Machine Learning</span><span class="tech-cat">IA</span></div>
+      <div class="tech-brick tb-g"><span class="tech-icon">♟️</span><span class="tech-name">Lean Six Sigma</span><span class="tech-cat">Melhoria</span></div>
+      <div class="tech-brick tb-a"><span class="tech-icon">🚛</span><span class="tech-name">Supply Chain</span><span class="tech-cat">Gestão</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DOSSIER ═══ -->
+<section class="about-section" id="dossier">
+  <div class="wrap">
+    <div class="about-grid">
+      <div>
+        <span class="route-label r">Sobre Mim</span>
+        <h2 class="sec-title r r2">QUEM É O<br><span class="hi">ANALISTA</span></h2>
+        <div class="info-card r r3">
+          <div class="info-card-header">
+            <div class="ic-dot r"></div>
+            <div class="ic-dot y"></div>
+            <div class="ic-dot g"></div>
+            <span class="ic-title">perfil.txt — terminal</span>
+          </div>
+          <div class="ic-body">
+            <p class="ic-prompt">cat operative_bio.txt</p>
+            <span class="hl-g">STATUS:</span> Profissional de <span class="hl">Logística</span> com +4 anos<br>
+            operando em rotinas analíticas e automações com <span class="hl">AI</span>.<br><br>
+            <span class="hl-g">FORMAÇÃO:</span> Graduado · Pós-grad. em<br>
+            <span class="hl">Engenharia Logística &amp; Supply Chain</span><br><br>
+            <span class="hl-g">CERT:</span> <span class="hl-m">Lean Six Sigma Green Belt</span> [em curso]<br><br>
+            <span class="hl-g">OBJETIVO:</span> Atuar na intersecção entre<br>
+            <span class="hl-b">análise operacional</span> e <span class="hl">tecnologia aplicada</span>.<br><br>
+            <span class="hl-g">LANG:</span> Português [NATIVO] · Inglês [APRIMORANDO]<span style="animation:blink 1s infinite;display:inline-block;color:var(--amber)">▌</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <span class="route-label r">Módulos Ativos</span>
+        <div class="modules">
+          <div class="module r r2">
+            <div class="module-accent"></div>
+            <div class="module-icon">🚛</div>
+            <div>
+              <p class="module-name">Logística &amp; Operações</p>
+              <p class="module-desc">WMS · TMS · SAP MM/WM/S4HANA · S&OP · Lean Six Sigma · Inventário · Roteirização</p>
+            </div>
+          </div>
+          <div class="module r r3">
+            <div class="module-accent"></div>
+            <div class="module-icon">⚙️</div>
+            <div>
+              <p class="module-name">Automação</p>
+              <p class="module-desc">Python · VBA/Excel · Power Automate · ETL Pipelines · RPA Conceitual</p>
+            </div>
+          </div>
+          <div class="module r r4">
+            <div class="module-accent"></div>
+            <div class="module-icon">📊</div>
+            <div>
+              <p class="module-name">Dados &amp; IA</p>
+              <p class="module-desc">Power BI · SQL · Machine Learning · Forecasting · NLP Aplicado</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CARREIRA ═══ -->
+<section class="career-section" id="mission-log">
+  <div class="wrap">
+    <div class="career-grid">
+      <div class="career-sticky">
+        <span class="route-label r">Histórico</span>
+        <h2 class="sec-title r r2">LINHA DO<br><span class="hi">TEMPO</span></h2>
+        <p class="mono-text r r3">Cada etapa adicionou uma camada de expertise que alimenta operações mais precisas.</p>
+      </div>
+
+      <div class="mission-log">
+        <div class="mission-item r">
+          <div class="mission-node"></div>
+          <div class="mission-head">
+            <div class="mission-logo"><img src="logo-dhl.png" alt="DHL"></div>
+            <div class="mission-head-info">
+              <p class="mission-date">2026 — PRESENTE</p>
+              <h3 class="mission-role">Logistics Analyst LLP</h3>
+              <p class="mission-co">DHL · Varginha, MG</p>
+            </div>
+          </div>
+          <p class="mission-body">Analista de Transporte com atuação em planejamento e execução de operações logísticas, incluindo agendamentos, roteirização e logística reversa. Experiência na gestão de indicadores (KPIs) como IOD, OTD e OTIF, conduzindo reuniões com transportadoras para acompanhamento de performance e melhoria contínua. Atuação em processos de ressarcimento, controle de POD e garantia de baixas sistêmicas (SAP), assegurando a acuracidade das informações. Forte atuação na negociação com transportadoras, mitigando custos de estadia, solucionando ocorrências operacionais e garantindo disponibilidade de veículos.</p>
+          <div class="mission-chips">
+            <span class="mission-chip">VBA</span>
+            <span class="mission-chip">TMS</span>
+            <span class="mission-chip">BI</span>
+            <span class="mission-chip">Excel</span>
+            <span class="mission-chip">Python</span>
+          </div>
+        </div>
+
+        <div class="mission-item r">
+          <div class="mission-node"></div>
+          <div class="mission-head">
+            <div class="mission-logo"><img src="logo-dhl.png" alt="DHL"></div>
+            <div class="mission-head-info">
+              <p class="mission-date">2025 — 2025</p>
+              <h3 class="mission-role">Logistics Assistant LLP</h3>
+              <p class="mission-co">DHL · Varginha, MG</p>
+            </div>
+          </div>
+          <p class="mission-body">Responsável pela atualização de dashboards e BI operacionais, garantindo visibilidade do tracking de cargas. Atua na organização, validação e tratamento de dados de transporte para acompanhamento de entregas, além de apoiar a geração de deliveries e os analistas da área.</p>
+          <div class="mission-chips">
+            <span class="mission-chip">VBA</span>
+            <span class="mission-chip">TMS</span>
+            <span class="mission-chip">BI</span>
+            <span class="mission-chip">Excel</span>
+          </div>
+        </div>
+
+        <div class="mission-item r">
+          <div class="mission-node"></div>
+          <div class="mission-head">
+            <div class="mission-logo"><img src="logo-PSSM.png" alt="PSSM"></div>
+            <div class="mission-head-info">
+              <p class="mission-date">2024 — 2025</p>
+              <h3 class="mission-role">Logistics Analyst</h3>
+              <p class="mission-co">Porto Seco Sul de Minas · Varginha, MG</p>
+            </div>
+          </div>
+          <p class="mission-body">Responsável pelo controle e acuracidade dos estoques, monitorando níveis, corrigindo divergências e conduzindo inventários cíclicos e gerais. Atua no planejamento de reposição com base na demanda, utilizando métodos como ponto de ressuprimento e estoque de segurança. Contribui para a organização e otimização do layout de armazenagem, além de operar sistemas ERP (SAP) e WMS para registro, análise e confiabilidade dos dados.</p>
+          <div class="mission-chips">
+            <span class="mission-chip">VBA</span>
+            <span class="mission-chip">WMS</span>
+            <span class="mission-chip">BI</span>
+            <span class="mission-chip">INVENTÁRIO</span>
+            <span class="mission-chip">Excel</span>
+          </div>
+        </div>
+
+        <div class="mission-item r">
+          <div class="mission-node"></div>
+          <div class="mission-head">
+            <div class="mission-logo"><img src="logo-PSSM.png" alt="PSSM"></div>
+            <div class="mission-head-info">
+              <p class="mission-date">2023 — 2024</p>
+              <h3 class="mission-role">Logistics Assistant</h3>
+              <p class="mission-co">Porto Seco Sul de Minas · Varginha, MG</p>
+            </div>
+          </div>
+          <p class="mission-body">Responsável pela liberação e priorização de pedidos para separação e expedição, garantindo que estejam completos e dentro dos prazos. Atuação na organização e conferência de documentos fiscais, atualizações no WMS e controles operacionais.</p>
+          <div class="mission-chips">
+            <span class="mission-chip">WMS</span>
+            <span class="mission-chip">Faturamento</span>
+            <span class="mission-chip blue">Operações</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PROJETOS ═══ -->
+<section class="auto-section" id="ops">
+  <div class="wrap">
+    <div class="section-header r">
+      <div>
+        <span class="route-label">Projetos</span>
+        <h2 class="sec-title">AUTOMAÇÃO<br><span class="hi">PYTHON</span> &amp; <span class="hi-b">VBA</span></h2>
+        <p class="mono-text" style="max-width:440px;">Iniciativas documentadas com problema, solução e resultado medido.</p>
+      </div>
+      <div class="section-counter">04</div>
+    </div>
+    <div class="proj-grid">
+      <div class="proj-card r">
+        <span class="proj-num">PROJETO 01</span>
+        <p class="proj-type">Python · Automação</p>
+        <h3 class="proj-title">Automação de Extração de Arquivos do SAP</h3>
+        <p class="proj-desc">Script em Python para automação da extração de relatórios no SAP (VL06O, VL06, SE16N, Carga de Notas e VA05). Inclui envio automático de e-mails com relatórios em HTML e geração de logs completos da execução.</p>
+        <div class="proj-impact">
+          <p class="proj-impact-lbl">Resultado</p>
+          <p class="proj-impact-val">-71% tempo → 10h semanal → 2h por dia</p>
+        </div>
+        <div class="proj-tags">
+          <span class="proj-tag">Python</span><span class="proj-tag">HTML</span>
+          <span class="proj-tag">SAPGUI</span><span class="proj-tag">openpyxl</span>
+        </div>
+      </div>
+      <div class="proj-card r r2">
+        <span class="proj-num">PROJETO 02</span>
+        <p class="proj-type">Python · Excel · Automação · HTML</p>
+        <h3 class="proj-title">Automação de baixa VLPODL</h3>
+        <p class="proj-desc">Automação logística na transação SAP VLPODL: realização da leitura de uma planilha contendo diferentes datas, com agrupamento automático dos deliveries por data. Em seguida, o processo executa as baixas no SAP, realiza a extração do relatório de resultados e envia automaticamente um e-mail com o status da execução.</p>
+        <div class="proj-impact">
+          <p class="proj-impact-lbl">Resultado</p>
+          <p class="proj-impact-val">8h/semana eliminadas de trabalho manual</p>
+        </div>
+        <div class="proj-tags">
+          <span class="proj-tag">VBA</span><span class="proj-tag">Excel</span>
+          <span class="proj-tag">SAPGUI</span><span class="proj-tag">openpyxl</span><span class="proj-tag">PANDAS</span>
+        </div>
+      </div>
+      <div class="proj-card r r3">
+        <span class="proj-num">PROJETO 03</span>
+        <p class="proj-type">Python · Excel · Automação · HTML</p>
+        <h3 class="proj-title">Automação de leítura de PDF's</h3>
+        <p class="proj-desc">Desenvolvimento de uma automação para o processo de logística reversa utilizando Python, responsável pela leitura de arquivos PDF, renomeação automática dos documentos e extração de seis informações estratégicas contidas nos arquivos. Após o processamento, os dados são inseridos automaticamente em uma planilha Excel. Ao final da leitura de todos os arquivos da pasta, o sistema realiza a compactação dos PDFs juntamente com a planilha em um arquivo ZIP e envia automaticamente um e-mail aos responsáveis pelo processo, contendo uma interface informativa desenvolvida em HTML.</p>
+        <div class="proj-impact">
+          <p class="proj-impact-lbl">Resultado</p>
+          <p class="proj-impact-val">0.25 seg cada NF (AGORA) vs 1min cada NF (ANTES)</p>
+        </div>
+        <div class="proj-tags">
+          <span class="proj-tag">Python</span><span class="proj-tag">HTML</span>
+          <span class="proj-tag">PDF</span><span class="proj-tag">pdfplumber</span>
+        </div>
+      </div>
+      <div class="proj-card r r4">
+        <span class="proj-num">PROJETO 04</span>
+        <p class="proj-type">Python · PDF</p>
+        <h3 class="proj-title">Automação de extração de PDF/XML</h3>
+        <p class="proj-desc">Desenvolvimento de uma automação integrada ao SAP GUI utilizando Python, responsável pela execução das transações J1BNFE e SP01. O processo realiza a leitura automática de uma planilha Excel contendo números de notas fiscais, aplica essas informações no SAP e executa as transações necessárias para extração dos arquivos XML's e PDF's. A automação também realiza o tratamento, renomeação e organização dos arquivos extraídos, reduzindo atividades manuais e aumentando a eficiência operacional do processo.</p>
+        <div class="proj-impact">
+          <p class="proj-impact-lbl">Resultado</p>
+          <p class="proj-impact-val">0.30 seg cada vez que executa o código (AGORA) vs 2 min cada vez que executava o processo (ANTES)</p>
+        </div>
+        <div class="proj-tags">
+          <span class="proj-tag">Python</span><span class="proj-tag">SAPGUI</span>
+          <span class="proj-tag">pdfplumber</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GALERIA ═══ -->
+<section class="gallery-section" id="intel">
+  <div class="wrap">
+    <div class="gallery-intro">
+      <div>
+        <span class="route-label r">Registros</span>
+        <h2 class="sec-title r r2">AUTOMAÇÕES<br>EM <span class="hi">CAMPO</span></h2>
+      </div>
+      <p class="mono-text r r3" style="align-self:end;">
+        Prints e vídeos das automações em operação real — resultados concretos, não teoria.
+      </p>
+    </div>
+    <div class="media-grid">
+      <div class="media-card r">
+        <span class="media-badge">REG-01</span>
+        <div class="media-frame">
+          <div class="media-placeholder">
+            <div class="media-ph-icon">🐍</div>
+            <video controls width="500">
+              <source src="Relatórios.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="media-body">
+          <p class="media-cat">Python · Automação SAP</p>
+          <h3 class="media-title">Automação de Extração de Relatórios</h3>
+          <p class="media-desc">Script Python automatizando extração de relatórios no SAP (VL06O, VL06, SE16N, Carga de notas e VL06O). Envio automático de e-mails com relatórios HTML e logs de execução para rastreabilidade.</p>
+          <div class="media-kpis">
+            <div><span class="kpi-v">-71%</span><span class="kpi-l">Tempo</span></div>
+            <div><span class="kpi-v">-10h</span><span class="kpi-l">Semanal</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="media-card r r2">
+        <span class="media-badge">REG-02</span>
+        <div class="media-frame">
+          <div class="media-placeholder">
+            <div class="media-ph-icon">🐍</div>
+            <span class="media-ph-text">print-auto2.jpg<br>ou video-auto2.mp4</span>
+          </div>
+        </div>
+        <div class="media-body">
+          <p class="media-cat">Python · Baixa SAP</p>
+          <h3 class="media-title">Automação de Baixa VLPODL</h3>
+          <p class="media-desc">Automação logística na transação VLPODL: leitura de Excel do BI, agrupamento de deliveries por data, execução de baixas no SAP, extração de relatório e envio automático de status.</p>
+          <div class="media-kpis">
+            <div><span class="kpi-v">-2h</span><span class="kpi-l">Economizadas</span></div>
+            <div><span class="kpi-v">-8h</span><span class="kpi-l">Semanal</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="media-card r r3">
+        <span class="media-badge">REG-03</span>
+        <div class="media-frame">
+          <div class="media-placeholder">
+            <div class="media-ph-icon">📄</div>
+            <video controls width="500">
+              <source src="Reversa.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="media-body">
+          <p class="media-cat">Python · Excel · Automação · HTML </p>
+          <h3 class="media-title">Automação de leítura de PDF's</h3>
+          <p class="media-desc">Leitura automática de PDFs de devolução: extração de NFO, NFD, CNPJ, produtos e valores, consolidação em Excel, compactação em ZIP e envio automático para a equipe responsável.</p>
+          <div class="media-kpis">
+            <div><span class="kpi-v">25seg</span><span class="kpi-l">Cada NF</span></div>
+            <div><span class="kpi-v">-97%</span><span class="kpi-l">Redução</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="media-card r r4">
+        <span class="media-badge">REG-04</span>
+        <div class="media-frame">
+          <div class="media-placeholder">
+            <div class="media-ph-icon">📦</div>
+            <span class="media-ph-text">print-auto4.jpg<br>ou video-auto4.mp4</span>
+          </div>
+        </div>
+        <div class="media-body">
+          <p class="media-cat">Python · PDF</p>
+          <h3 class="media-title">Automação de extração de PDF/XML</h3>
+          <p class="media-desc">Desenvolvimento de uma automação integrada ao SAP GUI utilizando Python para execução das transações J1BNFE e SP01, realizando leitura automática de notas fiscais em Excel, extração de XMLs e PDFs, além do tratamento, renomeação e organização dos arquivos, reduzindo atividades manuais e aumentando a eficiência administrativa.</p>
+          <div class="media-kpis">
+            <div><span class="kpi-v">-1min e 30seg</span><span class="kpi-l">economizados</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MÉTRICAS ═══ -->
+<section class="metrics-section" id="stats">
+  <div class="wrap">
+    <div class="metrics-hdr">
+      <span class="route-label r" style="margin:0 auto 14px;">Resultados em Dados</span>
+      <h2 class="sec-title r r2" style="text-align:center;">CONQUISTAS<br><span class="hi">MENSURÁVEIS</span></h2>
+    </div>
+    <div class="big-metrics r">
+      <div class="bm-item">
+        <span class="bm-n"><span data-count="40">0</span><span class="bm-unit">%</span></span>
+        <p class="bm-l">REDUÇÃO<br>DE PROCESSO</p>
+      </div>
+      <div class="bm-item">
+        <span class="bm-n">R$50K+</span>
+        <p class="bm-l">ECONOMIA<br>GERADA</p>
+      </div>
+      <div class="bm-item">
+        <span class="bm-n"><span data-count="17">0</span>+</span>
+        <p class="bm-l">AUTOMAÇÕES<br>ENTREGUES</p>
+      </div>
+      <div class="bm-item">
+        <span class="bm-n"><span data-count="98">0</span><span class="bm-unit">%</span></span>
+        <p class="bm-l">ACURÁCIA<br>DASHBOARDS</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SKILLS ═══ -->
+<section class="skills-section" id="skill-tree">
+  <div class="wrap">
+    <span class="route-label r">Competências</span>
+    <h2 class="sec-title r r2" style="margin-bottom:44px;">STACK <span class="hi">TÉCNICO</span></h2>
+    <div class="skills-grid">
+      <div class="skill-panel r">
+        <h3 class="skill-panel-title">⚙️ Programação &amp; Dados</h3>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">VBA / Excel Avançado</span><span class="xp-val">90%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-c" data-width="90"></div></div>
+        </div>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">Python</span><span class="xp-val">72%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-c" data-width="72"></div></div>
+        </div>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">SQL</span><span class="xp-val">53%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-g" data-width="53"></div></div>
+        </div>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">Machine Learning</span><span class="xp-val">65%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-m" data-width="65"></div></div>
+        </div>
+        <h3 class="skill-panel-title" style="margin-top:24px;">📊 BI &amp; Ferramentas</h3>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">Power BI</span><span class="xp-val">78%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-y" data-width="78"></div></div>
+        </div>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">Power Automate</span><span class="xp-val">70%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-c" data-width="70"></div></div>
+        </div>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">AI</span><span class="xp-val">65%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-g" data-width="65"></div></div>
+        </div>
+      </div>
+
+      <div class="skill-panel r r2">
+        <h3 class="skill-panel-title">🚛 Logística &amp; Supply Chain</h3>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">Gestão de Armazém (WMS)</span><span class="xp-val">90%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-c" data-width="90"></div></div>
+        </div>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">SAP MM / WM / S4HANA</span><span class="xp-val">62%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-g" data-width="62"></div></div>
+        </div>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">Planejamento de Demanda S&amp;OP</span><span class="xp-val">75%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-c" data-width="75"></div></div>
+        </div>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">Lean Six Sigma Green Belt</span><span class="xp-val">40%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-y" data-width="40"></div></div>
+        </div>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">Gestão de Transportes (TMS)</span><span class="xp-val">78%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-m" data-width="78"></div></div>
+        </div>
+        <div class="xp-item">
+          <div class="xp-top"><span class="xp-name">Roteirização &amp; Last Mile</span><span class="xp-val">74%</span></div>
+          <div class="xp-track"><div class="xp-fill xf-g" data-width="74"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTATO ═══ -->
+<section class="contact-section" id="comm">
+  <div class="wrap">
+    <div class="contact-grid">
+      <div>
+        <span class="route-label r">Contato</span>
+        <h2 class="contact-head r r2">
+          VAMOS<br>TRABALHAR
+          <em>JUNTOS</em>
+        </h2>
+        <p class="mono-text r r3">Disponível para oportunidades em <span style="color:var(--amber)">logística estratégica</span>, <span style="color:var(--blue)">automação</span> e posições que valorizem o perfil híbrido operações + tecnologia.</p>
+        <div class="comm-channels r r4">
+          <a href="https://www.linkedin.com/in/luiz-henrique-8b282b368/?skipRedirect=true" target="_blank" rel="noopener" class="comm-link">
+            <div class="comm-ico">in</div>
+            <div><span class="comm-strong">LinkedIn</span><span class="comm-sub">linkedin.com/in/seu-perfil</span></div>
+          </a>
+          <a href="mailto:hluiz5977@gmail.com" class="comm-link">
+            <div class="comm-ico">✉</div>
+            <div><span class="comm-strong">E-mail</span><span class="comm-sub">hluiz5977@gmail.com</span></div>
+          </a>
+          <a href="https://github.com/seu-usuario" target="_blank" rel="noopener" class="comm-link">
+            <div class="comm-ico" style="font-size:.58rem;">GH</div>
+            <div><span class="comm-strong">GitHub</span><span class="comm-sub">github.com/seu-usuario</span></div>
+          </a>
+          <a href="https://wa.me/5535996497898" target="_blank" rel="noopener" class="comm-link">
+            <div class="comm-ico">📱</div>
+            <div><span class="comm-strong">WhatsApp</span><span class="comm-sub">(35) 99649-7898</span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="r r3">
+        <div class="form-panel">
+          <p class="form-panel-title">Enviar Mensagem</p>
+          <div class="form">
+            <div class="fg"><label class="fl" for="fn">Nome</label><input class="fi" type="text" id="fn" placeholder="Seu nome"></div>
+            <div class="fg"><label class="fl" for="fe">E-mail</label><input class="fi" type="email" id="fe" placeholder="email@dominio.com"></div>
+            <div class="fg"><label class="fl" for="fs">Assunto</label><input class="fi" type="text" id="fs" placeholder="Oportunidade / Projeto / Parceria"></div>
+            <div class="fg"><label class="fl" for="fm">Mensagem</label><textarea class="ft" id="fm" placeholder="Sua mensagem..."></textarea></div>
+            <button class="fsend" onclick="sendMail()">Enviar Mensagem →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="wrap footer-inner">
+    <p class="footer-copy">© 2026 <em>Luiz Henrique</em> · Logistics &amp; Tech Analyst · Todos os direitos reservados</p>
+    <div class="footer-links">
+      <a href="#inicio">Início</a>
+      <a href="#mission-log">Carreira</a>
+      <a href="#ops">Projetos</a>
+      <a href="#intel">Galeria</a>
+      <a href="#comm">Contato</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══ CURSOR ═══ */
+const co = document.getElementById('c-out'), ci = document.getElementById('c-in');
+let mx=0,my=0,ox=0,oy=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;ci.style.left=mx+'px';ci.style.top=my+'px';});
+function animCursor(){ox+=(mx-ox)*.12;oy+=(my-oy)*.12;co.style.left=ox+'px';co.style.top=oy+'px';requestAnimationFrame(animCursor);}
+animCursor();
+document.querySelectorAll('a,button,.proj-card,.media-card,.module,.mission-item,.comm-link,.tech-brick').forEach(el=>{
+  el.addEventListener('mouseenter',()=>co.classList.add('hov'));
+  el.addEventListener('mouseleave',()=>co.classList.remove('hov'));
+});
+
+/* ═══ HAMBURGER ═══ */
+const hbg = document.getElementById('hbg');
+const mobileMenu = document.getElementById('mobile-menu');
+hbg.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+/* ═══ REVEAL ═══ */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('on'); obs.unobserve(e.target); } });
+},{threshold:.08});
+document.querySelectorAll('.r').forEach(el => obs.observe(el));
+
+/* ═══ XP BARS ═══ */
+const xpObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.xp-fill').forEach(b => b.style.width = b.dataset.width + '%');
+      xpObs.unobserve(e.target);
+    }
+  });
+},{threshold:.15});
+document.querySelectorAll('.skills-section').forEach(el => xpObs.observe(el));
+
+/* ═══ COUNTERS ═══ */
+function animCount(el){
+  const t = +el.dataset.count;
+  let v = 0;
+  const step = t/60;
+  const tick = () => { v = Math.min(v+step, t); el.textContent = Math.round(v); if(v < t) requestAnimationFrame(tick); };
+  tick();
+}
+const cntObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ animCount(e.target); cntObs.unobserve(e.target); } });
+},{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el => cntObs.observe(el));
+
+/* ═══ NAV ACTIVE ═══ */
+const secs = document.querySelectorAll('section[id],header[id]');
+const navAs = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let c = '';
+  secs.forEach(s => { if(scrollY >= s.offsetTop - 90) c = s.id; });
+  navAs.forEach(a => a.style.color = a.getAttribute('href') === '#'+c ? 'var(--amber)' : '');
+},{passive:true});
+
+/* ═══ CONTACT FORM ═══ */
+function sendMail(){
+  const n = document.getElementById('fn').value.trim();
+  const e = document.getElementById('fe').value.trim();
+  const s = document.getElementById('fs').value.trim();
+  const m = document.getElementById('fm').value.trim();
+  if(!n||!e||!m){ alert('Preencha nome, e-mail e mensagem.'); return; }
+  window.location.href = `mailto:hluiz5977@gmail.com?subject=${encodeURIComponent(s||'[PORTFÓLIO] Contato')}&body=${encodeURIComponent('Nome: '+n+'\nE-mail: '+e+'\n\n'+m)}`;
+}
+</script>
+</body>
+</html>
